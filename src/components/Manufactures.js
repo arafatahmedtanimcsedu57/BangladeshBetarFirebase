@@ -136,6 +136,7 @@ import ContentEditable from 'react-contenteditable'
                             <div className='col-lg-6 col-md-12 col-sm-12'>{this.state.createManufactureFormVisible === true?
                                 <form onSubmit={this.createManufacture}>
                                     <div className="form-group">
+                                    Manufactures Name
                                         <input
                                             name="manufactureName"
                                             className="form-control"
@@ -145,6 +146,7 @@ import ContentEditable from 'react-contenteditable'
                                     </div>
                                 
                                     <div className="form-group">
+                                        Country
                                         <input
                                             name="manufactureCountry"
                                             className="form-control"
@@ -155,6 +157,7 @@ import ContentEditable from 'react-contenteditable'
                                     </div>
 
                                     <div className="form-group">
+                                        Address
                                         <input
                                             name="manufactureAddress"
                                             className="form-control"

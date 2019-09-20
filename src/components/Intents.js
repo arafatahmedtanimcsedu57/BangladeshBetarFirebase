@@ -9,13 +9,18 @@ class Intents extends Component {
   
         this.state={
             products: null,
-            createAddProductIntentFormVisiable:false
+            createAddProductIntentFormVisiable:false,
+            createIntentFormVisible: false,
+            confirmIntentForm:false
         }
   
         this.productRef = createRef();
         this.lastYearRef = createRef();
         this.nextYearRef = createRef();
-        this.useRef = createRef()
+        this.useRef = createRef();
+        this.intentYear = createRef();
+        this.intentName = createRef();
+        this.intentType = createRef();
     }
       
 
@@ -26,7 +31,35 @@ class Intents extends Component {
         });
     }
 
+    intentBundle = () => {
+        // const newIntent = this.props.userInfo[`running-intent`].items.filter(item => item.selected === true )
+        // this.props.updateIntent(newIntent)
+    }
+    
     createAddProductIntentFormShow = () => this.setState({createAddProductIntentFormVisiable: !this.state.createAddProductIntentFormVisiable})
+    confirmIntent = () => this.setState({confirmIntentForm: !this.state.confirmIntentForm})
+
+    createIntentFormVisible = () =>{
+        // console.log(e.target.checked)
+        console.log(this.props.userInfo[`running-intent`].items.filter(item => item.selected === true ).length)
+        const tmp = this.props.userInfo[`running-intent`].items.filter(item => item.selected === true ).length
+        if(tmp!=0){
+            this.setState({createIntentFormVisible: true})
+        }else{
+            this.setState({createIntentFormVisible: false})
+        } 
+    } 
+    handleSubmit = (e) => {
+        e.preventDefault()
+        
+        const id = this.props.intentBundle.length
+        const intentName = this.intentName.current.value
+        const intentType = this.intentType.current.value
+        const intentYear = this.intentYear.current.value
+        
+        const intentList = this.props.userInfo[`running-intent`].items.filter(item => item.selected)
+        this.props.createIntentBundle(id,intentName, intentType, intentYear, intentList)
+    }
 
     render() {
         return  (
@@ -55,6 +88,7 @@ class Intents extends Component {
                         <div style={{float: 'center'}} className='row'>
                             <div className='col-lg-6 col-md-12 col-sm-12'>
                                 <span style={{color:'rgba(0, 75, 222, 0.5)'}}>Running Intent</span>
+                                
                                 <table 
                                     style={{color: "rgba(0, 0, 0, 0.5)"}} 
                                     className="table table-responsive table-borderless"
@@ -73,15 +107,23 @@ class Intents extends Component {
                                     </thead>
                                     :''}
                                     <tbody>{Object.keys(this.props.userInfo[`running-intent`].items).map(key => (
+                                        
                                         <tr 
                                             key={key} 
                                             style={{border: "1px solid rgba(0, 0, 0, 0.1)"}}
-                                        >
+                                        >{console.log(key)}
                                             <td key={key}>
                                                 <input
                                                     key={key}
                                                     type="checkbox" 
-                                                    onChange={(event)=>this.props.updateRunningIntentSelected(key, event.target.checked)}
+                                                    value="yes"
+                                                     onChange={(event)=>{
+                                                        //  console.log(event.target.checked)
+
+                                                         this.props.updateRunningIntentSelected(key, event.target.checked);
+                                                         this.createIntentFormVisible();
+                                                        }}
+                                                    //onChange = {this.createIntentFormVisible}
                                                     checked={this.props.userInfo[`running-intent`].items[key][`selected`]}
                                                 />
                                             </td>
@@ -149,25 +191,51 @@ class Intents extends Component {
                                                     style={{color: 'red'}} 
                                                     type="delete" 
                                                     key="delete" 
-                                                    onClick={()=>this.deleteProduct(key)}
+                                                    onClick={()=>this.props.deleteIndent(key)}
                                                 />
                                             </td>
                                         </tr>        
                                     ))}</tbody>
+                                    <div className='col-lg-6 col-md-12 col-sm-12' style={{float:'right'}}>
+                                    {
+                                        this.state.createIntentFormVisible === true?
+                                        (<span style={{color:'rgba(0, 75, 222, 0.5)', float:'right'}}>
+                                            <button 
+                                                type="submit"
+                                                className="btn btn-primary"
+                                                onClick={this.confirmIntent}
+                                            >
+                                                confirm Indent
+                                            </button>
+                                        </span>):""
+                                    }
+                                    </div>
+                                    
                                 </table>
-
                                 <ul className="list-group">{
                                     Object.keys(this.props.userInfo.intents).map((item, index)=> 
                                         <li key={index} style={{color:'rgba(0, 75, 222, .7)'}} className="list-group-item">
-                                            <b>{this.props.userInfo.intents[item].name}</b>
+                                            <b>{this.props.userInfo.intents[item].name}
+                    
+                                            </b>
+                                            <span style={{color:'rgba(0, 75, 222, 0.5)', float:'right'}}>
+                                                <button 
+                                                    type="submit"
+                                                    className="btn btn-primary"
+                                                    onClick={()=>this.props.indentApproval(item)}
+                                                >
+                                                    Request For Approval
+                                                </button>
+                                            </span>
                                             <p>
                                                 <span style={{color:'rgba(0, 75, 222, .5)'}}>
                                                     {this.props.userInfo.intents[item].type.charAt(0).toUpperCase()}{this.props.userInfo.intents[item].type.slice(1)}
                                                 </span>-<i>
                                                     {this.props.userInfo.intents[item].year}
                                                 </i>
+                                                
                                             </p>
-
+                                                
                                             <table 
                                                 style={{color: "rgba(0, 0, 0, 0.5)"}} 
                                                 className="table table-responsive table-borderless"
@@ -202,11 +270,58 @@ class Intents extends Component {
                                     )
                                 }</ul>
                             </div>
+                            <div>
+                                {this.state.confirmIntentForm === true?
+                                <form onSubmit={this.handleSubmit}>
+                                    <div className="form-group">
+                                        Indent Type
+                                        <select className="form-control"   ref={this.intentType} >
+                                            <option  className="dropdown-item" >Choose Type</option>
+                                            <option  className="dropdown-item" key="1" value="yearly" >Yearly</option>
+                                            <option  className="dropdown-item" key="2" value="emergancy">Emergancy</option>
+                                            <option  className="dropdown-item" key="3" value="inter-station">Inter Station</option>
+                                        </select>                  
+                                    </div>
 
-                            <div className='col-lg-6 col-md-12 col-sm-12'>{this.state.createAddProductIntentFormVisiable === true?
+                                    <div className="form-group">
+                                        Name : <input
+                                            name="intentName"
+                                            className="form-control"
+                                            type="text"
+                                            autoComplete="none"
+                                            ref={this.intentName}
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        Year: <input
+                                            name="intentYear"
+                                            className="form-control"
+                                            type="text"
+                                            autoComplete="none"
+                                            ref={this.intentYear}
+                                        />
+                                    </div>
+
+                                    <button 
+                                        type="submit"
+                                        className="btn btn-primary"
+                                    >
+                                        Submit
+                                    </button>
+                                </form>:""
+                                }
+                            </div>
+                            <div className='col-lg-6 col-md-12 col-sm-12'>
+                            {this.state.createAddProductIntentFormVisiable === true?
                                 <form onSubmit={(event)=>{
                                     event.preventDefault()
 
+                                    // console.log( Object.keys(this.props.userInfo[`running-intent`][`items`]).length,
+                                    // this.state.products[this.productRef.current.value][`Name`],
+                                    // this.state.products[this.productRef.current.value][`Model`],
+                                    // this.state.products[this.productRef.current.value][`Manufacturer`],
+                                    // this.state.products[this.productRef.current.value][`Type`])
 
                                     console.log( Object.keys(this.props.userInfo[`running-intent`][`items`]).length,
                                     this.state.products[this.productRef.current.value][`Name`],

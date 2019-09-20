@@ -115,6 +115,7 @@ import ContentEditable from 'react-contenteditable'
                             <div className='col-lg-6 col-md-12 col-sm-12'>{this.state.createStationFormVisible === true?
                                 <form onSubmit={this.createStation}>
                                     <div className="form-group">
+                                        Station Name
                                         <input
                                             name="stationName"
                                             className="form-control"
@@ -124,6 +125,7 @@ import ContentEditable from 'react-contenteditable'
                                     </div>
                                 
                                     <div className="form-group">
+                                        Address
                                         <input
                                             name="stationAddress"
                                             className="form-control"

@@ -21,7 +21,7 @@ class Header extends React.Component{
                             className="navbar-brand" 
                             href="#"
                         >
-                            Bangladesh Betar
+                            Demo project
                         </a>
                         <button   
                             onClick={this.props.showNavbar}
